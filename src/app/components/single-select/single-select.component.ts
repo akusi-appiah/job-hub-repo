@@ -1,4 +1,4 @@
-import { Component, ElementRef, forwardRef, HostListener, input, output, signal } from '@angular/core';
+import { Component, effect, ElementRef, forwardRef, HostListener, input, output, signal } from '@angular/core';
 import { Categories } from '../../config/interfaces/general.interface';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -27,9 +27,22 @@ export class SingleSelectComponent implements ControlValueAccessor  {
   private onChange = (value: string) => {}
   private onTouched = () => {}
 
-  constructor(private readonly elementRef: ElementRef) {}
+  constructor(private readonly elementRef: ElementRef) {
+
+    effect(() => {
+      if (this.selectedValue()) {
+        this.updateSelectedOption();  
+      }
+    }, { allowSignalWrites: true });
+    
+  }
 
   ngOnInit() {
+    this.updateSelectedOption();
+  }
+
+
+  protected updateSelectedOption() {
     this.selectedOption.set(
       this.options().find((o) => o.categoryId === this.selectedValue()) || null
     )

@@ -30,7 +30,10 @@ export class ApiService {
   }
 
   updateJob(jobId: string, job: any): Observable<any> {
-    return this.http.put(this.apiUrl+`/job/owner/update/`+jobId, job);
+    if (!jobId) {
+      throw new Error('jobId is required for updating a job');
+    }
+    return this.http.put(this.apiUrl+`/job/owner/edit/${jobId}`, job);
   }
 
   async submitJob(jobId: string): Promise<any> {
@@ -40,8 +43,8 @@ export class ApiService {
   getJobs(params: ListParams, type: string): Observable<any> {
     let endpoint = type === 'jobOwner' ? '/job/owner/list' : '/job/seeker/list';
     let urlParams = `${endpoint}?type=all&offset=${params.offset}&limit=${params.limit}&sortBy=${params.sort}`;
-    if (params.search) urlParams += `&search=${params.search}`;
-    if (params.category) urlParams += `&category=${params.category}`;
+    if (params.search) urlParams += `&query=${params.search}`;
+    if (params.category) urlParams += `&categoryId=${params.category}`;
     if (params.status) urlParams += `&status=${params.status}`;
 
     return this.http.get(this.apiUrl + urlParams);

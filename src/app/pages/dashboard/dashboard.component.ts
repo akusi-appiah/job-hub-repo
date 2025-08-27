@@ -52,7 +52,7 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ngAfterViewInit() {
     // draw simple line chart
     // ensure you have chart.js installed: npm i chart.js
-    const ctx = (this.trendCanvas?.nativeElement).getContext('2d')!;
+    const ctx = (this.trendCanvas.nativeElement).getContext('2d')!;
     this.metricsSvc.getMetrics().subscribe(m => {
       const labels = m.trend.map((t:any) => t.date);
       const data = m.trend.map((t:any) => t.applied);

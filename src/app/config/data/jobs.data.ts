@@ -10,7 +10,7 @@
 
   export const  sortOptions = [
     { value: 'newest', label: 'Newest First' },
-    { value: 'highest', label: 'Highest Pay' },
-    { value: 'closing', label: 'Closing Soonest' }
+    { value: 'highest_paying', label: 'Highest Pay' },
+    { value: 'latest_expiration', label: 'Closing Soonest' }
   ];
 

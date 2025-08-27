@@ -29,6 +29,7 @@ export class SigninComponent {
   });
   errorMessage = '';
   loading = false;
+  authSession: any = null;
 
   constructor(
     private readonly fb: FormBuilder, 
@@ -48,12 +49,25 @@ export class SigninComponent {
       this.authService.signIn({email: email!, password: password!}).subscribe({
         next: (result) => {
           this.loading = false;
-          // console.log('Sign in result:', result);
+          console.log('Login successful', result);
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
           this.router.navigate([returnUrl]);
+          this.getAuthSession();
         },
         error: err => {this.errorMessage = err.message || 'Login failed'; this.loading=false;}
       });
+
     }
+  }
+
+  getAuthSession() {
+    this.authService.fetchAuthSession().subscribe({
+      next:  session => {
+        console.log('Session:', session);
+     },
+      error: error => {
+        console.error('Error fetching auth session:', error);
+      }
+    }); 
   }
 }

@@ -16,7 +16,8 @@ import {
   updatePassword,
   UpdateUserAttributesOutput,
   confirmUserAttribute,
-  type VerifiableUserAttributeKey
+  type VerifiableUserAttributeKey,
+  fetchAuthSession
 } from 'aws-amplify/auth';
 
 @Injectable({
@@ -85,7 +86,8 @@ export class AuthService {
       username: data.email, 
       password: data.password 
     })).pipe(
-      tap(() => {
+      tap((response) => {
+        console.log('Sign-in response:', response);
         this.isAuthenticatedSubject.next(true);
       }),
       catchError(error => {
@@ -94,6 +96,17 @@ export class AuthService {
       })
     );
   }
+
+  fetchAuthSession(): Observable<any> {
+    return from(fetchAuthSession()).pipe(
+      // tap((session) => {
+      //   console.log('Auth session:', session);}),
+      catchError(error => {
+        console.error('Fetch auth session error:', error);
+        throw error;
+      }) 
+    );    
+  };
 
   forgotPassword(email: string): Observable<any> {
     return from(amplifyResetPassword({ username: email })).pipe(
@@ -164,6 +177,19 @@ export class AuthService {
     );
   }
 
+  // getUser(): Observable<any> {
+  //   return from(fetchAuthSession()).pipe(
+  //     tap(session => {
+  //       console.log('Auth session:', session);
+
+  //     }),
+  //     catchError(error => {
+  //       console.error('Get user error:', error);
+  //       throw error;
+  //     })
+  //   );
+  // }
+
   getUserAttributes(): Observable<{
     firstName: string;
     middleName: string;
@@ -184,8 +210,7 @@ export class AuthService {
       catchError(error => {
         console.error('Get user attributes error:', error);
         throw error;
-      })
-    );
+      })    );
   }
 
   updateUserAttributes(updates: {

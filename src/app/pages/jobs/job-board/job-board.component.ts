@@ -156,6 +156,7 @@ export class JobBoardComponent implements OnInit, OnDestroy {
   }
 
   loadJobs() {
+    this.loading = true;
     this.loadJobsService().subscribe({
       next: (res) => this.handleResponse(res),
       error: (err) => {
@@ -163,6 +164,7 @@ export class JobBoardComponent implements OnInit, OnDestroy {
         this.toastService.error('Failed to load jobs. Please try again.');
         console.error('Failed to load jobs:', err);
     }});
+    this.loading = false;
   }
 
   private setupSearchSubscription() {
@@ -195,9 +197,10 @@ export class JobBoardComponent implements OnInit, OnDestroy {
     if (this.mode() === 'jobSeeker') {
       this.jobSeekerId = response.seekerId;
     } else {
-      console.log('Job summary:', response.summary);
       this.jobOwnerId = response.ownerId;
     }
+
+    // console.log('Job summary:', response);
     this.jobs = response.jobs;
     this.totalJobs = response.total;
     this.hasMore = response.hasMore;
@@ -302,12 +305,14 @@ export class JobBoardComponent implements OnInit, OnDestroy {
 
   canClaimJob(job: Job): boolean {
     return this.mode() === 'jobSeeker' && 
+          job.ownerId !== this.jobSeekerId &&
            job.status === 'open' && 
            new Date(job.expiryDate) > new Date();
   }
 
   canSubmitJob(job: Job): boolean {
     return this.mode() === 'jobSeeker' && 
+          job.ownerId !== this.jobSeekerId &&
            this.isJobClaimedByUser(job) && 
            job.status === 'claimed';
   }
