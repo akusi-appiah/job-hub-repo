@@ -91,6 +91,7 @@ export class JobPostComponent {
     // Remove timeToCompleteDate and expiryDate from payload
     delete payload.timeToCompleteDate;
     delete payload.expiryDate;
+  
 
     console.log('Submitting job with payload:',this.job()?.jobId, payload);
 

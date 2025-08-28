@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../config/services/authService/auth-service.service';
+import { UserStore } from '../../../store/user/user.store';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -22,7 +23,9 @@ export class DashboardLayoutComponent {
   isLoading = false;
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly userStore = inject(UserStore);
   currentRoute = "Dashboard";
+  userType = this.userStore.userType()?.toLowerCase() || 'user';
 
 
   onClickRouterLink(route: string) {
@@ -32,8 +35,9 @@ export class DashboardLayoutComponent {
 
   signOut() {
     this.isLoading = true;
-    this.auth.logout().subscribe({
+    this.userStore.logout().subscribe({
       next: () =>{ 
+        this.userStore.clearUserData();
         this.isLoading = false;
         this.router.navigate(['/auth/signin']);
       } ,

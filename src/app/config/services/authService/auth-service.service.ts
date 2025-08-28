@@ -63,7 +63,7 @@ export class AuthService {
     }
     
     return from(amplifySignUp(signUpPayload)).pipe(
-      tap((response) => console.log('Sign-up response:', response)),
+      // tap((response) => console.log('Sign-up response:', response)),
       catchError(error => {
         console.error('Sign-up error:', error);
         throw error;
@@ -87,7 +87,7 @@ export class AuthService {
       password: data.password 
     })).pipe(
       tap((response) => {
-        console.log('Sign-in response:', response);
+        // console.log('Sign-in response:', response);
         this.isAuthenticatedSubject.next(true);
       }),
       catchError(error => {
@@ -99,8 +99,6 @@ export class AuthService {
 
   fetchAuthSession(): Observable<any> {
     return from(fetchAuthSession()).pipe(
-      // tap((session) => {
-      //   console.log('Auth session:', session);}),
       catchError(error => {
         console.error('Fetch auth session error:', error);
         throw error;
@@ -132,7 +130,7 @@ export class AuthService {
         this.isAuthenticatedSubject.next(false);
       }),
       catchError(error => {
-        console.error('Logout error:', error);
+        // console.error('Logout error:', error);
         this.isAuthenticatedSubject.next(false);
         return of(null);
       })
@@ -176,19 +174,6 @@ export class AuthService {
       )
     );
   }
-
-  // getUser(): Observable<any> {
-  //   return from(fetchAuthSession()).pipe(
-  //     tap(session => {
-  //       console.log('Auth session:', session);
-
-  //     }),
-  //     catchError(error => {
-  //       console.error('Get user error:', error);
-  //       throw error;
-  //     })
-  //   );
-  // }
 
   getUserAttributes(): Observable<{
     firstName: string;

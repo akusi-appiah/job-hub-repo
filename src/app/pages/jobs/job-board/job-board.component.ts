@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, HostListener, input, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, HostListener, input, OnDestroy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../config/services/apiService/api.service';
@@ -8,6 +8,7 @@ import { sortOptions, statusOptions } from '../../../config/data/jobs.data';
 import { debounceTime, distinctUntilChanged,Subject, Subscription, switchMap,from } from 'rxjs';
 import { ToastService } from '../../../config/services/toast/toast.service';
 import { JobPostComponent } from '../post-job/job-post.component';
+import { UserStore } from '../../../store/user/user.store';
 
 
 export type JobBoardMode = 'jobSeeker' | 'jobOwner';
@@ -81,6 +82,7 @@ export class JobBoardComponent implements OnInit, OnDestroy {
   mode = input<JobBoardMode>("jobSeeker");
   private subscription: Subscription | undefined;
   private readonly searchTerms = new Subject<string>();
+  private readonly userstore = inject(UserStore);
   
   jobs: Job[] = [];
   currentPage = 1;
@@ -129,6 +131,8 @@ export class JobBoardComponent implements OnInit, OnDestroy {
     this.loadCurrentUser();
     this.loadJobs();
   }
+
+  adminUser = computed(() => this.userstore.userType()?.toLowerCase() === 'admin'); 
 
   loadCurrentUser() {
     this.authService.getUserAttributes().subscribe({
@@ -200,7 +204,6 @@ export class JobBoardComponent implements OnInit, OnDestroy {
       this.jobOwnerId = response.ownerId;
     }
 
-    // console.log('Job summary:', response);
     this.jobs = response.jobs;
     this.totalJobs = response.total;
     this.hasMore = response.hasMore;

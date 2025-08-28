@@ -146,7 +146,7 @@
           <ng-container *ngIf="mode() === 'jobSeeker'">
             <!-- Claim button -->
             <button 
-              *ngIf="canClaimJob(job)"
+              *ngIf="canClaimJob(job) && !adminUser()"
               (click)="$event.stopPropagation(); openClaimModal(job)"
               class="action-btn bg-blue-600 text-white hover:bg-blue-700">
               Claim
@@ -154,7 +154,7 @@
             
             <!-- Submit button -->
             <button 
-              *ngIf="canSubmitJob(job)"
+              *ngIf="canSubmitJob(job) && !adminUser()"
               (click)="$event.stopPropagation(); openSubmitModal(job)"
               class="action-btn bg-green-600 text-white hover:bg-green-700">
               Submit
@@ -165,7 +165,7 @@
           <ng-container *ngIf="mode() === 'jobOwner'">
             <!-- Approve button -->
             <button 
-              *ngIf="canApproveOrRejectJob(job)"
+              *ngIf="canApproveOrRejectJob(job) && !adminUser()"
               (click)="$event.stopPropagation(); approveJob(job)"
               class="action-btn bg-green-600 text-white hover:bg-green-700">
               Approve
@@ -173,7 +173,7 @@
             
             <!-- Reject button -->
             <button 
-              *ngIf="canApproveOrRejectJob(job)"
+              *ngIf="canApproveOrRejectJob(job) && !adminUser()"
               (click)="$event.stopPropagation(); openRejectModal(job)"
               class="action-btn bg-red-600 text-white hover:bg-red-700">
               Reject
@@ -181,7 +181,7 @@
             
             <!-- Edit button -->
             <button 
-              *ngIf="canEditOrDeleteJob(job)"
+              *ngIf="canEditOrDeleteJob(job) && !adminUser()"
               (click)="$event.stopPropagation(); openPostJobModal(job)"
               class="action-btn bg-blue-600 text-white hover:bg-blue-700">
               Edit
@@ -397,13 +397,13 @@
         <!-- Job Seeker Actions -->
         <ng-container *ngIf="mode() === 'jobSeeker'">
           <button 
-            *ngIf="canClaimJob(selectedJob!)"
+            *ngIf="canClaimJob(selectedJob!) && !adminUser()"
             (click)="showDetailsModal = false; openClaimModal(selectedJob!)"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             Claim Job
           </button>
           <button 
-            *ngIf="canSubmitJob(selectedJob!)"
+            *ngIf="canSubmitJob(selectedJob!) && !adminUser()"
             (click)="showDetailsModal = false; openSubmitModal(selectedJob!)"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
             Submit Work
@@ -413,19 +413,19 @@
         <!-- Job Owner Actions -->
         <ng-container *ngIf="mode() === 'jobOwner'">
           <button 
-            *ngIf="canApproveOrRejectJob(selectedJob!)"
+            *ngIf="canApproveOrRejectJob(selectedJob!) && !adminUser()"
             (click)="showDetailsModal = false; approveJob(selectedJob!)"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
             Approve
           </button>
           <button 
-            *ngIf="canApproveOrRejectJob(selectedJob!)"
+            *ngIf="canApproveOrRejectJob(selectedJob!) && !adminUser()"
             (click)="showDetailsModal = false; openRejectModal(selectedJob!)"
             class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
             Reject
           </button>
           <button 
-            *ngIf="canEditOrDeleteJob(selectedJob!)"
+            *ngIf="canEditOrDeleteJob(selectedJob!) && !adminUser()"
             (click)="showDetailsModal = false; openPostJobModal(selectedJob!)"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             Edit

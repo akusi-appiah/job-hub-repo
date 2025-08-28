@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink,ActivatedRoute} from '@angular/router';
 import { AuthService } from '../../config/services/authService/auth-service.service';
 import { BackdropComponent } from '../../pages/layout/backdrop/backdrop.component';
-
+import { UserStore } from '../../store/user/user.store';
 
 @Component({
   selector: 'app-signin',
@@ -30,44 +30,44 @@ export class SigninComponent {
   errorMessage = '';
   loading = false;
   authSession: any = null;
+  userStore= inject(UserStore);
 
   constructor(
     private readonly fb: FormBuilder, 
     private readonly router: Router , 
     private readonly route:ActivatedRoute, 
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit() {
     this.form.reset(); 
-  }
-
-  onSubmit() {
-    if (this.form.valid) {
-      this.loading = true;
-      const { email, password } = this.form.value;
-      this.authService.signIn({email: email!, password: password!}).subscribe({
-        next: (result) => {
-          this.loading = false;
-          console.log('Login successful', result);
-          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
-          this.router.navigate([returnUrl]);
-          this.getAuthSession();
-        },
-        error: err => {this.errorMessage = err.message || 'Login failed'; this.loading=false;}
-      });
-
+        // Check if we already have user data in storage
+    if (this.userStore.isAuthenticated()) {
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
+      this.router.navigate([returnUrl]);
     }
   }
 
-  getAuthSession() {
-    this.authService.fetchAuthSession().subscribe({
-      next:  session => {
-        console.log('Session:', session);
-     },
-      error: error => {
-        console.error('Error fetching auth session:', error);
-      }
-    }); 
+  onSubmit() {
+ if (this.form.valid) {
+      this.loading = true;
+      const { email, password } = this.form.value;
+      
+      this.authService.signIn({email: email!, password: password!}).subscribe({
+        next: () => {
+         this.authService.fetchAuthSession().subscribe(userData=>{
+          this.userStore.updateUserData(userData);
+         });
+          
+          this.loading = false;
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
+          this.router.navigate([returnUrl]);
+        },
+        error: err => {
+          this.errorMessage = err.message || 'Login failed';
+          this.loading = false;
+        }
+      });
+    }
   }
 }

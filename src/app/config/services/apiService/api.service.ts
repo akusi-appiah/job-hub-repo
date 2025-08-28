@@ -66,4 +66,25 @@ export class ApiService {
     return await firstValueFrom(this.http.delete(this.apiUrl+`/api/jobs/${jobId}`)); 
   }
 
+  getAdminJobs(params: ListParams): Observable<any> {
+    let urlParams = `/admin/job?type=all&offset=${params.offset}&limit=${params.limit}&sortBy=${params.sort}`;
+    if (params.search) urlParams += `&query=${params.search}`;
+    if (params.category) urlParams += `&categoryId=${params.category}`;
+    if (params.status) urlParams += `&status=${params.status}`;
+
+    return this.http.get(this.apiUrl + urlParams);
+  }
+
+  async getAdminJob(jobId: string): Promise<any> {
+    return await firstValueFrom(this.http.get(this.apiUrl + `/admin/job/${jobId}`));
+  }
+
+  async deleteAdminJob(jobId: string): Promise<any> {
+    return await firstValueFrom(this.http.delete(this.apiUrl + `/admin/job/${jobId}/delete`));
+  }
+
+  getAdminStatistics(): Observable<any> {
+    return this.http.get(this.apiUrl + '/admin/job/statistics');
+  }
+
 }

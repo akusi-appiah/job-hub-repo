@@ -90,3 +90,12 @@ export interface ListParams {
     status?: string;
     sort?: string;
 }
+
+export interface UserState {
+  userId: string | null;
+  userType: string | null;
+  categoryIds: number[] | null;
+  personalData: { email: string; firstname: string; lastname: string } | null;
+  loading: boolean;
+  error: string | null;
+};
