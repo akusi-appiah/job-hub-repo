@@ -72,7 +72,7 @@ export interface Job {
   submittedAt: string | null;
 }
 
-
+export type JobBoardMode = 'jobSeeker' | 'jobOwner'| 'admin';
 export interface User extends Omit<SignUpData, 'username' | 'password'> {};
 
 export interface Toast {

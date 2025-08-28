@@ -3,15 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../config/services/apiService/api.service';
 import { AuthService } from '../../../config/services/authService/auth-service.service';
-import { Categories, Job, ListParams, User } from '../../../config/interfaces/general.interface';
+import { Categories, Job, JobBoardMode, ListParams, User } from '../../../config/interfaces/general.interface';
 import { sortOptions, statusOptions } from '../../../config/data/jobs.data';
 import { debounceTime, distinctUntilChanged,Subject, Subscription, switchMap,from } from 'rxjs';
 import { ToastService } from '../../../config/services/toast/toast.service';
 import { JobPostComponent } from '../post-job/job-post.component';
 import { UserStore } from '../../../store/user/user.store';
-
-
-export type JobBoardMode = 'jobSeeker' | 'jobOwner';
 
 @Component({
   selector: 'app-job-board',
@@ -221,7 +218,7 @@ export class JobBoardComponent implements OnInit, OnDestroy {
       sort: this.selectedSort || undefined,
     };
 
-    return this.apiService.getJobs(params, this.mode());
+    return this.adminUser() ? this.apiService.getAdminJobs(params) : this.apiService.getJobs(params, this.mode());
   }
 
 
@@ -491,7 +488,7 @@ export class JobBoardComponent implements OnInit, OnDestroy {
     
     try {
       this.loading = true;
-      const response = await this.apiService.deleteJob(job.jobId);
+      const response = await (this.adminUser() ? this.apiService.deleteAdminJob(job.jobId) : this.apiService.deleteJob(job.jobId));
       
       if (response.message) {
         this.toastService.success('Job deleted successfully!');
