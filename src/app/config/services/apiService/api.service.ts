@@ -33,7 +33,8 @@ export class ApiService {
     if (!jobId) {
       throw new Error('jobId is required for updating a job');
     }
-    return this.http.put(this.apiUrl+`/job/owner/edit/${jobId}`, job);
+    // return this.http.put(this.apiUrl+`/job/owner/edit/${jobId}`, job);
+    return this.http.put(this.apiUrl + `/job/owner/edit/` + jobId, job);
   }
 
   async submitJob(jobId: string): Promise<any> {
@@ -50,20 +51,24 @@ export class ApiService {
     return this.http.get(this.apiUrl + urlParams);
   }
 
+  getOverview(): Observable<any> {
+    return this.http.get(this.apiUrl + '/job/overview');
+  }
+
   async claimJob(jobId: string): Promise<any> {
     return await firstValueFrom(this.http.post(this.apiUrl+'/job/seeker/claim/'+jobId, {}));
   }
 
-  async rejectJob(jobId: string, reason: string): Promise<any> {
-    return await firstValueFrom(this.http.post(this.apiUrl+`/api/jobs/${jobId}/reject`, {reason})); 
+  async rejectJob(jobId: string, message: string): Promise<any> {
+    return await firstValueFrom(this.http.post(this.apiUrl+`/api/jobs/${jobId}/reject`, {message})); 
   }
 
-  async approveJob(jobId: string): Promise<any> {
-    return await firstValueFrom(this.http.post(this.apiUrl+`/api/jobs/${jobId}/approve`, {})); // Empty body is required in this case
+  async approveJob(jobId: string, message: string): Promise<any> {
+    return await firstValueFrom(this.http.post(this.apiUrl+`/api/jobs/${jobId}/approve`, {message})); // Empty body is required in this case
   } 
 
   async deleteJob(jobId: string): Promise<any> {
-    return await firstValueFrom(this.http.delete(this.apiUrl+`/api/jobs/${jobId}`)); 
+    return await firstValueFrom(this.http.delete(this.apiUrl+`/job/owner/delete/${jobId}`));
   }
 
   getAdminJobs(params: ListParams): Observable<any> {

@@ -271,35 +271,35 @@
       <div class="card">
         <div class="flex justify-between items-center">
           <div>
-            <div class="kpi-value">{{ metrics?.totalJobs ?? '—' }}</div>
-            <div class="kpi-label">Open Jobs</div>
+            <div class="kpi-value">{{ overview?.totalJobs ?? '—' }}</div>
+            <div class="kpi-label">Total Jobs</div>
           </div>
           <div class="text-sm text-gray-500">Live</div>
         </div>
       </div>
 
-      <div class="card clickable" (click)="navigate('/jobs/applied')">
+      <div class="card clickable" >
         <div>
-          <div class="kpi-value">{{ metrics?.appliedCount ?? '—' }}</div>
-          <div class="kpi-label">Applied</div>
+          <div class="kpi-value">{{ overview?.totalClaimedJobs  ?? '—' }}</div>
+          <div class="kpi-label">Claimed Jobs</div>
         </div>
-        <div class="mt-3 text-sm text-gray-500">{{ metrics?.appliedPct ?? '—' }}% of views</div>
+        <div class="mt-3 text-sm text-gray-500">Jobs claimed</div>
       </div>
 
-      <div class="card clickable" (click)="navigate('/jobs/completed')">
+      <div class="card clickable" >
         <div>
-          <div class="kpi-value">{{ metrics?.completedCount ?? '—' }}</div>
-          <div class="kpi-label">Completed</div>
+          <div class="kpi-value">{{ overview?.totalSubmittedJobs ?? '—' }}</div>
+          <div class="kpi-label">Submitted Jobs</div>
         </div>
-        <div class="mt-3 text-sm text-gray-500">{{ metrics?.completedPct ?? '—' }}% completion</div>
+        <div class="mt-3 text-sm text-gray-500">Jobs Submitted</div>
       </div>
 
-      <div class="card clickable" (click)="navigate('/jobs/expired')">
+      <div class="card clickable" >
         <div>
-          <div class="kpi-value">{{ metrics?.expiredCount ?? '—' }}</div>
-          <div class="kpi-label">Expired</div>
+          <div class="kpi-value">{{ overview?.totalPostedJobs ?? '—' }}</div>
+          <div class="kpi-label">Posted Jobs</div>
         </div>
-        <div class="mt-3 text-sm text-gray-500">Others claimed</div>
+        <div class="mt-3 text-sm text-gray-500">Jobs posted</div>
       </div>
     </section>
 
@@ -316,13 +316,13 @@
       <div class="card">
         <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
         <ul class="space-y-3">
-          <li *ngFor="let a of metrics?.recentActions">
+          <li *ngFor="let a of overview?.recent">
             <div class="flex justify-between items-start gap-4">
               <div>
-                <div class="font-medium">{{ a.title }}</div>
-                <div class="text-xs text-gray-500">{{ a.status }} — {{ a.date | date:'short' }}</div>
+                <div class="font-medium">{{ a.description }}</div>
+                <div class="text-xs text-gray-500">{{ a.type }} — {{ a.dateTime }}</div>
               </div>
-              <div class="text-sm text-gray-500">{{ a.status === 'Completed' ? '✓' : (a.status === 'Expired' ? '⚠' : '') }}</div>
+              <div class="text-sm text-gray-500">{{ a.type === 'Claimed' ? '✓' : '' }}</div>
             </div>
           </li>
         </ul>

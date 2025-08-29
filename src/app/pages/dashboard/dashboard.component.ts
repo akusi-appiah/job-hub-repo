@@ -33,6 +33,7 @@ Chart.register(...registerables);
 })
 export class DashboardComponent implements AfterViewInit, OnInit {
   metrics: any = null;
+  overview: any = null
   private readonly userStore = inject(UserStore);
  
   private readonly metricsSvc = inject(MetricsService);
@@ -68,11 +69,15 @@ export class DashboardComponent implements AfterViewInit, OnInit {
 
 
   ngOnInit() {
-    this.loadAdminStatistics();
 
-    this.metricsSvc.getMetrics().subscribe(m => {
-      this.metrics = m;
-    });
+    if (this.adminUser()){
+      this.loadAdminStatistics();
+    }else{
+      this.loadOverview();
+      this.metricsSvc.getMetrics().subscribe(m => {
+          this.metrics = m;
+      });
+    }
   }
 
 
@@ -80,11 +85,71 @@ export class DashboardComponent implements AfterViewInit, OnInit {
   ngAfterViewInit() {
     // draw simple line chart
     // ensure you have chart.js installed: npm i chart.js
-    this.createUserChart();
+    if (this.adminUser()) {
+      this.createUserChart();
+    }
+
+    if (this.overview) {
+      this.updateChart();
+    }
+    
+
+
   }
 
   navigate(path: string) {
     this.router.navigate([path]);
+  }
+
+  loadOverview() {
+    this.apiService.getOverview().subscribe({
+      next: (data) => {
+        this.overview = data;
+        this.updateChart();
+      },
+      error: (error) => {
+        console.error('Error fetching overview data:', error);
+        console.error('Status:', error.status);
+        console.error('Message:', error.message);
+      }
+    });
+  }
+
+  updateChart() {
+    if (!this.trendCanvas || !this.overview?.stats) return;
+    
+    const ctx = (this.trendCanvas.nativeElement).getContext('2d')!;
+    
+    if (this.chart) {
+      this.chart.destroy();
+    }
+    
+    const labels = this.overview.stats.map((stat: any) => stat.date);
+    const data = this.overview.stats.map((stat: any) => stat.claimed);
+    
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Claimed Jobs',
+          data,
+          fill: true,
+          backgroundColor: 'rgba(37,99,235,0.12)',
+          borderColor: '#2563eb',
+          tension: .35,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { display: true, grid: { display: false } },
+          y: { display: true, beginAtZero: true, ticks: { stepSize: 2 } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
   }
 
   createUserChart() {

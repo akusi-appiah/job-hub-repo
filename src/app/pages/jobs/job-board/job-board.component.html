@@ -13,11 +13,9 @@
       </div>
       
       <div class="flex items-center">
-        <p *ngIf="loading" class="text-center text-2xl mr-4 text-blue-600">Loading...</p>
-        
         <!-- Post New Job Button (for job owners) -->
         <button 
-          *ngIf="mode() === 'jobOwner'"
+          *ngIf="mode() === 'jobOwner' && !adminUser()"
           (click)="openPostJobModal()"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
           Post New Job
@@ -90,6 +88,12 @@
         {{ currentUser?.jobPreferences?.join(', ') }}
       </div>
     </div>
+  </div>
+
+    <!-- Loading State -->
+  <div *ngIf="loading" class="flex items-center justify-center py-12">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <p class="ml-3 text-gray-600">Loading ...</p>
   </div>
 
   <!-- Job Listings -->
@@ -166,7 +170,7 @@
             <!-- Approve button -->
             <button 
               *ngIf="canApproveOrRejectJob(job) && !adminUser()"
-              (click)="$event.stopPropagation(); approveJob(job)"
+              (click)="$event.stopPropagation(); openApprovalModal(job)"
               class="action-btn bg-green-600 text-white hover:bg-green-700">
               Approve
             </button>
@@ -190,7 +194,7 @@
             <!-- Delete button -->
             <button 
               *ngIf="canEditOrDeleteJob(job)"
-              (click)="$event.stopPropagation(); deleteJob(job)"
+              (click)="$event.stopPropagation(); openDeleteModal(job)"
               class="action-btn bg-gray-600 text-white hover:bg-gray-700">
               Delete
             </button>
@@ -293,6 +297,34 @@
     </div>
   </div>
 
+
+  <!-- Approve Job Modal -->
+  <div *ngIf="showApprovalModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md modal">
+      <h3 class="text-xl font-bold text-blue-700 mb-4">Approve Work</h3>
+      <p class="text-gray-600 mb-2">Please provide a reason for approving "{{ selectedJob?.name }}":</p>
+      
+      <textarea 
+        [(ngModel)]="approvalReason"
+        rows="5"
+        placeholder="Describe the work you've completed..."
+        class="form-input w-full mt-3"></textarea>
+      
+      <div class="flex justify-end space-x-3 mt-6">
+        <button 
+          (click)="closeApprovalModal()"
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition">
+          Cancel
+        </button>
+        <button 
+          (click)="approveJob()"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+          {{loading ? "Submitting..." : "Submit Work"}}
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Reject Job Modal -->
   <div *ngIf="showRejectModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md modal">
@@ -315,6 +347,27 @@
           (click)="rejectJob()"
           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
           {{loading ? "Rejecting..." : "Reject Submission"}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+    <!-- Delete Job Modal -->
+  <div *ngIf="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md modal">
+      <h3 class="text-xl font-bold text-blue-700 mb-4">Delete Job</h3>
+      <p class="text-gray-600 mb-6">Are you sure you want to delete "<span class="font-bold">{{ selectedJob?.name }}</span>"?</p>
+      
+      <div class="flex justify-end space-x-3">
+        <button 
+          (click)="closeDeleteModal()"
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition">
+          Cancel
+        </button>
+        <button 
+          (click)="deleteJob()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          {{ loading ? 'Deleting...' : 'Delete Job'}}
         </button>
       </div>
     </div>
@@ -414,7 +467,7 @@
         <ng-container *ngIf="mode() === 'jobOwner'">
           <button 
             *ngIf="canApproveOrRejectJob(selectedJob!) && !adminUser()"
-            (click)="showDetailsModal = false; approveJob(selectedJob!)"
+            (click)="showDetailsModal = false; openApprovalModal(selectedJob!)"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
             Approve
           </button>
@@ -432,7 +485,7 @@
           </button>
           <button 
             *ngIf="canEditOrDeleteJob(selectedJob!)"
-            (click)="showDetailsModal = false; deleteJob(selectedJob!)"
+            (click)="showDetailsModal = false; openDeleteModal(selectedJob!)"
             class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
             Delete
           </button>

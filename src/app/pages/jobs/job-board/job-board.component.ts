@@ -73,6 +73,15 @@ import { UserStore } from '../../../store/user/user.store';
     .action-btn {
       @apply px-2 py-1 rounded text-xs transition;
     }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   `]
 })
 export class JobBoardComponent implements OnInit, OnDestroy {
@@ -95,12 +104,16 @@ export class JobBoardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   showClaimModal = false;
   showSubmitModal = false;
+  showApprovalModal = false;
   showDetailsModal = false;
   showPostJobModal = false;
   showRejectModal = false;
+  showDeleteModal = false;
+
   selectedJob: Job | null = null;
   submissionDetails = '';
   rejectReason = '';
+  approvalReason = '';
   jobSeekerId= '';
   jobOwnerId= '';
   focusedJobId: string | null = null;
@@ -169,6 +182,7 @@ export class JobBoardComponent implements OnInit, OnDestroy {
   }
 
   private setupSearchSubscription() {
+    this.loading = true;
     this.subscription = this.searchTerms
       .pipe(
         debounceTime(300), // Wait 300ms after last keystroke
@@ -318,9 +332,9 @@ export class JobBoardComponent implements OnInit, OnDestroy {
   }
 
   canEditOrDeleteJob(job: Job): boolean {
-    return this.mode() === 'jobOwner' && 
+    return (this.mode() === 'jobOwner' && 
            this.isJobOwnedByUser(job) && 
-           (job.status === 'open' || job.status === 'claimed');
+           (job.status === 'open' || job.status === 'claimed')) || this.adminUser();
   }
 
   canApproveOrRejectJob(job: Job): boolean {
@@ -348,6 +362,28 @@ export class JobBoardComponent implements OnInit, OnDestroy {
     this.showSubmitModal = false;
     this.selectedJob = null;
     this.submissionDetails = '';
+  }
+
+  openApprovalModal(job: Job) {
+    this.selectedJob = job;
+    this.showDetailsModal = true;
+    this.approvalReason = '';
+  }
+
+  closeApprovalModal() {
+    this.showDetailsModal = false;
+    this.selectedJob = null;
+    this.approvalReason = '';
+  }
+
+  openDeleteModal(job: Job) {
+    this.selectedJob = job;
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+    this.selectedJob = null;
   }
 
   openPostJobModal(job?: Job) {
@@ -440,10 +476,18 @@ export class JobBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  async approveJob(job: Job) {
+  async approveJob() {
+
+     if (!this.selectedJob || !this.approvalReason.trim()) {
+      this.toastService.error('Please provide approval reason.');
+      return;
+    }
     try {
       this.loading = true;
-      const response = await this.apiService.approveJob(job.jobId);
+      const response = await this.apiService.approveJob(
+        this.selectedJob.jobId, 
+        this.approvalReason
+      );
       
       if (response.message) {
         this.toastService.success('Job approved successfully!');
@@ -483,22 +527,26 @@ export class JobBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteJob(job: Job) {
-    if (!confirm('Are you sure you want to delete this job?')) return;
+  async deleteJob() {
+    if (!this.selectedJob ) {
+      this.toastService.error('Please select a job.');
+      return;
+    }
     
     try {
       this.loading = true;
-      const response = await (this.adminUser() ? this.apiService.deleteAdminJob(job.jobId) : this.apiService.deleteJob(job.jobId));
+      const response = await (this.adminUser() ? this.apiService.deleteAdminJob(this.selectedJob.jobId) : this.apiService.deleteJob(this.selectedJob.jobId));
       
       if (response.message) {
         this.toastService.success('Job deleted successfully!');
         this.loading = false;
+        this.closeDeleteModal();
         this.loadJobs();
       }
     } catch (error) {
       this.loading = false;
       console.error('Failed to delete job:', error);
-      this.toastService.error('Failed to delete job. Please try again.');
+      this.toastService.error('Failed to delete job. '+ error, 5000);
     }
   }
 
